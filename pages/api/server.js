@@ -1,15 +1,4 @@
-const fs = require('fs');
-// const express = require('express')
-// const next = require('next')
 
-// const port = parseInt(process.env.PORT, 10) || 9001
-// const dev = process.env.NODE_ENV !== 'production'
-// const app = next({dev})
-// const handle = app.getRequestHandler()
-
-const chanceOfFailure = 0.10;
-const shiftList = JSON.parse(fs.readFileSync('pages/api/shift_list.json', 'utf8'));
-const nurseList = JSON.parse(fs.readFileSync('pages/api/nurse_list.json', 'utf8'));
 
 // app.prepare().then(() => {
 //   const server = express()
@@ -35,8 +24,14 @@ const nurseList = JSON.parse(fs.readFileSync('pages/api/nurse_list.json', 'utf8'
 //  });
 
 
+const fs = require('fs');
 const express = require('express')
 const next = require('next')
+
+
+const chanceOfFailure = 0.10;
+const shiftList = JSON.parse(fs.readFileSync('pages/api/shift_list.json', 'utf8'));
+const nurseList = JSON.parse(fs.readFileSync('pages/api/nurse_list.json', 'utf8'));
 
 const PORT = parseInt(process.env.PORT, 10) || 9001
 const dev = process.env.NODE_ENV !== 'production'
@@ -45,10 +40,6 @@ const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
   const server = express()
-
-  server.get('/api/test', (req, res) => {
-    return res.end('hello test')
-  })
 
   /**
    * Returns a JSON list of the shifts in the facility

@@ -1,6 +1,9 @@
 import React, { createContext, useEffect, useState } from 'react'
 
-const StoreContext = createContext()
+const StoreContext = createContext({
+	nurseList: [],
+	shiftList: [],
+})
 
 export function StoreContextProvider({ children, ...restOfProps }) {
 	const [shiftList, setShiftList] = useState(restOfProps.shiftList)
@@ -8,7 +11,7 @@ export function StoreContextProvider({ children, ...restOfProps }) {
 
 	useEffect(() => {
 		const getAssignedNurse = () => {
-			shiftList.map((shift) => {
+			shiftList?.map((shift) => {
 				if (shift.nurse_id) {
 					const nurse = nurseList.find((nurse) => {
 						return nurse.id === shift.nurse_id
