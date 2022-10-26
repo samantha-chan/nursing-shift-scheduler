@@ -1,6 +1,6 @@
 import MainTemplate from '../src/templates/MainTemplate'
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps() {
   const shiftRes = await fetch(`${process.env.BASE_URL}shifts`);
   const shiftList = await shiftRes.json();
 
@@ -15,10 +15,10 @@ export async function getServerSideProps(context) {
   }
 }
 
-export default function Home({ nurseList, shiftList }) {
+export default function Home() {
 
   return (
-      <MainTemplate nurseList={nurseList} shiftList={shiftList}  />
+      <MainTemplate />
   )
 }
 

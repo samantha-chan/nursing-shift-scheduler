@@ -26,6 +26,4 @@ const theme = extendTheme({
 	fonts,
 })
 
-console.log(theme)
-
 export default theme
