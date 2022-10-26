@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
 	Table,
 	TableContainer,
@@ -12,7 +12,8 @@ import {
 import StoreContext from '../utils/StoreContext'
 
 export default function ShiftTable() {
-	const { shiftList } = useContext(StoreContext)
+	const { nurseList, shiftList } = useContext(StoreContext)
+
 	return (
 		<TableContainer w={'100%'}>
 			<Table variant={'striped'}>
@@ -27,9 +28,17 @@ export default function ShiftTable() {
 					</Tr>
 				</Thead>
 				<Tbody>
-					{shiftList?.map((item) => {
-						const { end, id, name, nurse, qual_required, start } =
-							item
+					{shiftList?.map((shift) => {
+						const { end, id, name, qual_required, start } = shift
+
+						let nurse = ''
+						if (shift.nurse_id) {
+							nurse = nurseList.find((nurse) => {
+								return nurse.id === shift.nurse_id
+							})
+							shift.nurse = nurse
+						}
+
 						return (
 							<Tr key={id}>
 								<Td>{name}</Td>
@@ -37,8 +46,8 @@ export default function ShiftTable() {
 								<Td>{new Date(end).toLocaleString()}</Td>
 								<Td>{qual_required}</Td>
 								<Td>
-									{nurse
-										? `${nurse.first_name} ${nurse.last_name}`
+									{Object.keys(nurse).length > 0
+										? `${nurse?.first_name} ${nurse?.last_name}`
 										: ''}
 								</Td>
 							</Tr>
