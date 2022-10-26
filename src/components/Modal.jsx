@@ -37,7 +37,7 @@ export default function Modal({ isOpen, onClose, title }) {
 		try {
 			console.log('submitting', shiftInput, 'nurse:', nurseInput)
 			// axios
-			// 	.post(`/shifts/${shiftInput}`, {
+			// 	.put(`/shifts/${shiftInput}`, {
 			// 		nurseID: nurseInput,
 			// 	})
 			// 	.then(function (response) {
