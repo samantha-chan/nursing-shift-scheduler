@@ -4,7 +4,7 @@ Mock shift scheduler, connectRN take home assessment.
 
 ## Set Up
 
-# To get it to work locally with the local server:
+### To get it to work locally with the local server:
 
 Dev - Run `yarn dev` in a terminal.
 
