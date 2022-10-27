@@ -24,18 +24,62 @@ export default function Modal({ isOpen, onClose, title }) {
 	const [shiftInput, setShiftInput] = useState('')
 	const [nurseInput, setNurseInput] = useState('')
 	const [error, setError] = useState('')
+	const [invalidateForm, setInvalidateForm] = useState(false)
 	const [checkValidity, setCheckValidity] = useState(false)
 
-	const handleShiftInputChange = (e) => setShiftInput(e.target.value)
-	const handleNurseInputChange = (e) => {
-		setNurseInput(e.target.value)
-	}
+	useEffect(() => {
+		// get all of the shifts that are not assigned to a nurse
+		const getShiftInputTimes = shiftList.filter((shift) => {
+			return shift.id === shiftInput
+		})[0]
+
+		if (nurseInput) {
+			const getNurseShiftTimes = shiftList
+				.filter((shift) => {
+					return shift.nurse_id === nurseInput
+				})
+				.map((shift) => {
+					return { start: shift.start, end: shift.end }
+				})
+
+			const shiftInputStartTime = new Date(getShiftInputTimes?.start)
+			const shiftInputEndTime = new Date(getShiftInputTimes?.end)
+
+			const isBusy = getNurseShiftTimes.filter((shift) => {
+				const nurseShiftStartTime = new Date(shift.start)
+				const nurseShiftEndTime = new Date(shift.end)
+
+				return (
+					Math.min(shiftInputStartTime, shiftInputEndTime) <=
+						Math.max(nurseShiftStartTime, nurseShiftEndTime) &&
+					Math.max(shiftInputStartTime, shiftInputEndTime) >=
+						Math.min(nurseShiftStartTime, nurseShiftEndTime)
+				)
+			})
+
+			if (isBusy.length > 0) {
+				setInvalidateForm(true)
+				setError(
+					'Nurse is already assigned to a shift during this time'
+				)
+			} else {
+				setInvalidateForm(false)
+				setError('')
+			}
+		}
+	}, [shiftInput, nurseInput])
+
+	const handleShiftInputChange = (e) => setShiftInput(+e.target.value)
+	const handleNurseInputChange = (e) => setNurseInput(+e.target.value)
 
 	const isShiftError = shiftInput === ''
 	const isNurseError = nurseInput === ''
 
 	const handleSubmit = async (event) => {
 		event.preventDefault()
+		if (invalidateForm) {
+			return
+		}
 		setCheckValidity(true)
 
 		if (isShiftError || isNurseError) {
@@ -44,7 +88,7 @@ export default function Modal({ isOpen, onClose, title }) {
 		}
 
 		try {
-			const response = await fetch(`/shifts/${shiftInput}`, {
+			await fetch(`/shifts/${shiftInput}`, {
 				method: 'PUT',
 				body: JSON.stringify({ nurseID: nurseInput }),
 				headers: {
@@ -64,8 +108,10 @@ export default function Modal({ isOpen, onClose, title }) {
 	}
 
 	const handleCloseModal = () => {
+		// reset all state values
 		setShiftInput('')
 		setNurseInput('')
+		setInvalidateForm(false)
 		setCheckValidity(false)
 		onClose()
 	}
@@ -80,7 +126,12 @@ export default function Modal({ isOpen, onClose, title }) {
 				<ModalCloseButton />
 				<ModalBody p={6}>
 					<form onSubmit={handleSubmit}>
-						<FormControl isInvalid={isShiftError && checkValidity}>
+						<FormControl
+							isInvalid={
+								invalidateForm ||
+								(isShiftError && checkValidity)
+							}
+						>
 							<FormLabel>Shift</FormLabel>
 							<Select
 								onChange={handleShiftInputChange}
@@ -111,7 +162,12 @@ export default function Modal({ isOpen, onClose, title }) {
 								</FormErrorMessage>
 							)}
 						</FormControl>
-						<FormControl isInvalid={isNurseError && checkValidity}>
+						<FormControl
+							isInvalid={
+								invalidateForm ||
+								(isNurseError && checkValidity)
+							}
+						>
 							<FormLabel mt={4}>Nurse</FormLabel>
 							<Select
 								onChange={handleNurseInputChange}
@@ -141,7 +197,7 @@ export default function Modal({ isOpen, onClose, title }) {
 							)}
 						</FormControl>
 						<Button
-							isDisabled={isDisabled}
+							isDisabled={invalidateForm || isDisabled}
 							mt={8}
 							w='100%'
 							type='submit'
