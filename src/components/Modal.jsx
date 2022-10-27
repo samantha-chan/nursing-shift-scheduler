@@ -14,7 +14,7 @@ import {
 	Select,
 	Text,
 } from '@chakra-ui/react'
-import { InfoOutlineIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { InfoOutlineIcon, WarningIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import StoreContext from '../utils/StoreContext'
 
 const ErrorMessage = ({ icon, message }) => {
@@ -40,6 +40,7 @@ export default function Modal({ isOpen, onClose, title }) {
 	const [invalidateForm, setInvalidateForm] = useState(false)
 	const [invalidQual, setInvalidQual] = useState(false)
 	const [invalidTime, setInvalidTime] = useState(false)
+	const [warningOverrideMessage, setWarningOverrideMessage] = useState('')
 	const [checkValidity, setCheckValidity] = useState(false)
 
 	useEffect(() => {
@@ -55,6 +56,17 @@ export default function Modal({ isOpen, onClose, title }) {
 			const getSelectedShift = shiftList.filter((shift) => {
 				return shift.id === shiftInput
 			})[0]
+
+			//check for already assigned nurse
+			const currentShiftNurse = getSelectedShift.nurse_id
+			if (currentShiftNurse) {
+				const currentNurse = nurseList.filter((nurse) => {
+					return nurse.id === currentShiftNurse
+				})[0]
+				setWarningOverrideMessage(
+					`Oops, it looks like ${currentNurse.first_name} is already assigned to this shift. Do you want to override?`
+				)
+			}
 
 			//check for shift vs nurse qualifications
 			const shiftQualification = getSelectedShift.qual_required
@@ -141,6 +153,7 @@ export default function Modal({ isOpen, onClose, title }) {
 		setInvalidQual(false)
 		setInvalidTime(false)
 		setInvalidateForm(false)
+		setWarningOverrideMessage('')
 		setCheckValidity(false)
 		onClose()
 	}
@@ -273,6 +286,12 @@ export default function Modal({ isOpen, onClose, title }) {
 							<ErrorMessage
 								icon={WarningTwoIcon}
 								message={error}
+							/>
+						)}
+						{warningOverrideMessage && (
+							<ErrorMessage
+								icon={WarningIcon}
+								message={warningOverrideMessage}
 							/>
 						)}
 
