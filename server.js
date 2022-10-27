@@ -14,6 +14,8 @@ const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
   const server = express()
+  
+  server.use(express.json());
 
   /**
    * Returns a JSON list of the shifts in the facility

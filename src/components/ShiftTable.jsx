@@ -29,14 +29,22 @@ export default function ShiftTable() {
 				</Thead>
 				<Tbody>
 					{shiftList?.map((shift) => {
-						const { end, id, name, qual_required, start } = shift
+						const {
+							end,
+							id,
+							name,
+							nurse_id,
+							qual_required,
+							start,
+						} = shift
 
 						let nurse = ''
-						if (shift.nurse_id) {
-							nurse = nurseList.find((nurse) => {
-								return nurse.id === shift.nurse_id
+						if (nurse_id) {
+							nurse = nurseList.find((nurseData) => {
+								if (nurse_id === nurseData.id) {
+									return nurseData
+								}
 							})
-							shift.nurse = nurse
 						}
 
 						return (

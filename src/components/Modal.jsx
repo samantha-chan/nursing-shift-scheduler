@@ -11,12 +11,16 @@ import {
 	ModalHeader,
 	ModalOverlay,
 	Select,
+	Text,
 } from '@chakra-ui/react'
 import StoreContext from '../utils/StoreContext'
-import axios from 'axios'
 
 export default function Modal({ isOpen, onClose, title }) {
-	const { nurseList = [], shiftList = [] } = useContext(StoreContext)
+	const {
+		handleShiftUpdate,
+		nurseList = [],
+		shiftList = [],
+	} = useContext(StoreContext)
 	const [shiftInput, setShiftInput] = useState('')
 	const [nurseInput, setNurseInput] = useState('')
 	const [error, setError] = useState('')
@@ -34,15 +38,12 @@ export default function Modal({ isOpen, onClose, title }) {
 		event.preventDefault()
 		setCheckValidity(true)
 
+		if (isShiftError || isNurseError) {
+			setError('Please revisit your selections.')
+			return
+		}
+
 		try {
-			console.log('submitting', shiftInput, 'nurse:', nurseInput)
-			// axios
-			// 	.put(`/shifts/${shiftInput}`, {
-			// 		nurseID: nurseInput,
-			// 	})
-			// 	.then(function (response) {
-			// 		console.log(response)
-			// 	})
 			const response = await fetch(`/shifts/${shiftInput}`, {
 				method: 'PUT',
 				body: JSON.stringify({ nurseID: nurseInput }),
@@ -50,11 +51,13 @@ export default function Modal({ isOpen, onClose, title }) {
 					'Content-Type': 'application/json',
 				},
 			}).then(function (response) {
-				console.log(response)
+				if (response.status === 200) {
+					onClose()
+					handleShiftUpdate(shiftInput, nurseInput)
+				} else if (response.status === 500) {
+					setError('Something went wrong, please try again.')
+				}
 			})
-
-			const data = await response.json()
-			console.log('data', data)
 		} catch (error) {
 			setError('There was an error')
 		}
@@ -77,7 +80,6 @@ export default function Modal({ isOpen, onClose, title }) {
 				<ModalCloseButton />
 				<ModalBody p={6}>
 					<form onSubmit={handleSubmit}>
-						{error && <FormErrorMessage>{error}</FormErrorMessage>}
 						<FormControl isInvalid={isShiftError && checkValidity}>
 							<FormLabel>Shift</FormLabel>
 							<Select
@@ -147,6 +149,7 @@ export default function Modal({ isOpen, onClose, title }) {
 						>
 							Save Assignment
 						</Button>
+						{error && <Text mt={3}>{error}</Text>}
 					</form>
 				</ModalBody>
 			</ModalContent>
