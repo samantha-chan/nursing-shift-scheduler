@@ -17,11 +17,11 @@ import {
 import { InfoOutlineIcon, WarningIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import StoreContext from '../utils/StoreContext'
 
-const ErrorMessage = ({ icon, message }) => {
+const ErrorMessage = ({ color, icon, message }) => {
 	const Icon = icon
 	return (
 		<Flex align='center' mt={4}>
-			<Icon h={4} w={4} />
+			<Icon color={color} h={4} w={4} />
 			<Text pl={2}>{message}</Text>
 		</Flex>
 	)
@@ -291,6 +291,7 @@ export default function Modal({ isOpen, onClose, title }) {
 						{warningOverrideMessage && (
 							<ErrorMessage
 								icon={WarningIcon}
+								color='orange'
 								message={warningOverrideMessage}
 							/>
 						)}
