@@ -56,7 +56,7 @@ export default function ShiftTable() {
 									<Td>{qual_required}</Td>
 									<Td>
 										{Object.keys(nurse).length > 0
-											? `${nurse?.first_name} ${nurse?.last_name}`
+											? `${nurse?.first_name} ${nurse?.last_name}, ${nurse?.qualification}`
 											: ''}
 									</Td>
 								</Tr>
