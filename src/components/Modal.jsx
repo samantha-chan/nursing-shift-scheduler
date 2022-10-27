@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import {
 	Button,
+	Flex,
 	FormControl,
 	FormLabel,
 	FormErrorMessage,
@@ -13,7 +14,18 @@ import {
 	Select,
 	Text,
 } from '@chakra-ui/react'
+import { InfoOutlineIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import StoreContext from '../utils/StoreContext'
+
+const ErrorMessage = ({ icon, message }) => {
+	const Icon = icon
+	return (
+		<Flex align='center' mt={4}>
+			<Icon h={4} w={4} />
+			<Text pl={2}>{message}</Text>
+		</Flex>
+	)
+}
 
 export default function Modal({ isOpen, onClose, title }) {
 	const {
@@ -24,16 +36,52 @@ export default function Modal({ isOpen, onClose, title }) {
 	const [shiftInput, setShiftInput] = useState('')
 	const [nurseInput, setNurseInput] = useState('')
 	const [error, setError] = useState('')
+	const [qualificationError, setQualificationError] = useState('')
 	const [invalidateForm, setInvalidateForm] = useState(false)
 	const [checkValidity, setCheckValidity] = useState(false)
 
 	useEffect(() => {
-		// get all of the shifts that are not assigned to a nurse
 		const getShiftInputTimes = shiftList.filter((shift) => {
 			return shift.id === shiftInput
 		})[0]
 
 		if (nurseInput) {
+			const getSelectedNurse = nurseList.filter((nurse) => {
+				return nurse.id === nurseInput
+			})[0]
+
+			const getSelectedShift = shiftList.filter((shift) => {
+				return shift.id === shiftInput
+			})[0]
+
+			//check for shift vs nurse qualifications
+			const shiftQualification = getSelectedShift.qual_required
+			const nurseQualification = getSelectedNurse.qualification
+
+			if (shiftQualification === 'RN') {
+				nurseQualification === 'RN'
+					? setQualificationError('')
+					: setQualificationError(
+							'Nurse does not have the required certification'
+					  )
+			} else if (shiftQualification === 'LPN') {
+				nurseQualification === 'LPN' || nurseQualification === 'RN'
+					? setQualificationError('')
+					: setQualificationError(
+							'Nurse does not have the required certification'
+					  )
+			} else if (shiftQualification === 'CNA') {
+				console.log('hello')
+				nurseQualification === 'CNA' ||
+				nurseQualification === 'LPN' ||
+				nurseQualification === 'RN'
+					? setQualificationError('')
+					: setQualificationError(
+							'Nurse does not have the required certification'
+					  )
+			}
+
+			// check for nurse shift time overlaps
 			const getNurseShiftTimes = shiftList
 				.filter((shift) => {
 					return shift.nurse_id === nurseInput
@@ -75,6 +123,17 @@ export default function Modal({ isOpen, onClose, title }) {
 	const isShiftError = shiftInput === ''
 	const isNurseError = nurseInput === ''
 
+	const handleCloseModal = () => {
+		// reset all state values
+		setShiftInput('')
+		setNurseInput('')
+		setError('')
+		setQualificationError('')
+		setInvalidateForm(false)
+		setCheckValidity(false)
+		onClose()
+	}
+
 	const handleSubmit = async (event) => {
 		event.preventDefault()
 		if (invalidateForm) {
@@ -96,7 +155,7 @@ export default function Modal({ isOpen, onClose, title }) {
 				},
 			}).then(function (response) {
 				if (response.status === 200) {
-					onClose()
+					handleCloseModal()
 					handleShiftUpdate(shiftInput, nurseInput)
 				} else if (response.status === 500) {
 					setError('Something went wrong, please try again.')
@@ -105,15 +164,6 @@ export default function Modal({ isOpen, onClose, title }) {
 		} catch (error) {
 			setError('There was an error')
 		}
-	}
-
-	const handleCloseModal = () => {
-		// reset all state values
-		setShiftInput('')
-		setNurseInput('')
-		setInvalidateForm(false)
-		setCheckValidity(false)
-		onClose()
 	}
 
 	const isDisabled = shiftInput === ''
@@ -138,7 +188,13 @@ export default function Modal({ isOpen, onClose, title }) {
 								placeholder='Select Shift'
 							>
 								{shiftList?.map((item) => {
-									const { end, id, name, start } = item
+									const {
+										end,
+										id,
+										name,
+										start,
+										qual_required,
+									} = item
 									return (
 										<option
 											key={`${id}-${name}`}
@@ -149,7 +205,7 @@ export default function Modal({ isOpen, onClose, title }) {
 												start
 											).toLocaleTimeString()} - ${new Date(
 												end
-											).toLocaleTimeString()}`}
+											).toLocaleTimeString()} (${qual_required})`}
 										</option>
 									)
 								})}
@@ -196,6 +252,19 @@ export default function Modal({ isOpen, onClose, title }) {
 								</FormErrorMessage>
 							)}
 						</FormControl>
+						{qualificationError && (
+							<ErrorMessage
+								icon={InfoOutlineIcon}
+								message={qualificationError}
+							/>
+						)}
+						{error && (
+							<ErrorMessage
+								icon={WarningTwoIcon}
+								message={error}
+							/>
+						)}
+
 						<Button
 							isDisabled={invalidateForm || isDisabled}
 							mt={8}
@@ -205,7 +274,6 @@ export default function Modal({ isOpen, onClose, title }) {
 						>
 							Save Assignment
 						</Button>
-						{error && <Text mt={3}>{error}</Text>}
 					</form>
 				</ModalBody>
 			</ModalContent>
