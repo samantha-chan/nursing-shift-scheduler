@@ -28,39 +28,40 @@ export default function ShiftTable() {
 					</Tr>
 				</Thead>
 				<Tbody>
-					{shiftList?.map((shift) => {
-						const {
-							end,
-							id,
-							name,
-							nurse_id,
-							qual_required,
-							start,
-						} = shift
+					{shiftList.length > 0 &&
+						shiftList?.map((shift) => {
+							const {
+								end,
+								id,
+								name,
+								nurse_id,
+								qual_required,
+								start,
+							} = shift
 
-						let nurse = ''
-						if (nurse_id) {
-							nurse = nurseList.find((nurseData) => {
-								if (nurse_id === nurseData.id) {
-									return nurseData
-								}
-							})
-						}
+							let nurse = ''
+							if (nurse_id) {
+								nurse = nurseList.find((nurseData) => {
+									if (nurse_id === nurseData.id) {
+										return nurseData
+									}
+								})
+							}
 
-						return (
-							<Tr key={id}>
-								<Td>{name}</Td>
-								<Td>{new Date(start).toLocaleString()}</Td>
-								<Td>{new Date(end).toLocaleString()}</Td>
-								<Td>{qual_required}</Td>
-								<Td>
-									{Object.keys(nurse).length > 0
-										? `${nurse?.first_name} ${nurse?.last_name}`
-										: ''}
-								</Td>
-							</Tr>
-						)
-					})}
+							return (
+								<Tr key={id}>
+									<Td>{name}</Td>
+									<Td>{new Date(start).toLocaleString()}</Td>
+									<Td>{new Date(end).toLocaleString()}</Td>
+									<Td>{qual_required}</Td>
+									<Td>
+										{Object.keys(nurse).length > 0
+											? `${nurse?.first_name} ${nurse?.last_name}`
+											: ''}
+									</Td>
+								</Tr>
+							)
+						})}
 				</Tbody>
 			</Table>
 		</TableContainer>
