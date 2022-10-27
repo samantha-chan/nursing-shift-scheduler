@@ -9,7 +9,8 @@ export const Button: ComponentStyleConfig = {
 		primary: {
 			bg: 'primary.500',
 			color: 'white',
-			_hover: { bg: 'primary.300'}
+			_hover: { bg: 'primary.300', _disabled: { bg: 'primary.500' }},
+			
 		},
 		disabled: {
 			_hover: { bg: 'primary.500' }

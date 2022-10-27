@@ -38,6 +38,8 @@ export default function Modal({ isOpen, onClose, title }) {
 	const [error, setError] = useState('')
 	const [qualificationError, setQualificationError] = useState('')
 	const [invalidateForm, setInvalidateForm] = useState(false)
+	const [invalidQual, setInvalidQual] = useState(false)
+	const [invalidTime, setInvalidTime] = useState(false)
 	const [checkValidity, setCheckValidity] = useState(false)
 
 	useEffect(() => {
@@ -58,27 +60,32 @@ export default function Modal({ isOpen, onClose, title }) {
 			const shiftQualification = getSelectedShift.qual_required
 			const nurseQualification = getSelectedNurse.qualification
 
+			const handleNotQualified = () => {
+				setInvalidQual(true)
+				setQualificationError(
+					'Nurse does not have the required certification'
+				)
+			}
+
+			const handleQualified = () => {
+				setInvalidQual(false)
+				setQualificationError('')
+			}
+
 			if (shiftQualification === 'RN') {
 				nurseQualification === 'RN'
-					? setQualificationError('')
-					: setQualificationError(
-							'Nurse does not have the required certification'
-					  )
+					? handleQualified()
+					: handleNotQualified()
 			} else if (shiftQualification === 'LPN') {
 				nurseQualification === 'LPN' || nurseQualification === 'RN'
-					? setQualificationError('')
-					: setQualificationError(
-							'Nurse does not have the required certification'
-					  )
+					? handleQualified()
+					: handleNotQualified()
 			} else if (shiftQualification === 'CNA') {
-				console.log('hello')
 				nurseQualification === 'CNA' ||
 				nurseQualification === 'LPN' ||
 				nurseQualification === 'RN'
-					? setQualificationError('')
-					: setQualificationError(
-							'Nurse does not have the required certification'
-					  )
+					? handleQualified()
+					: handleNotQualified()
 			}
 
 			// check for nurse shift time overlaps
@@ -106,12 +113,12 @@ export default function Modal({ isOpen, onClose, title }) {
 			})
 
 			if (isBusy.length > 0) {
-				setInvalidateForm(true)
+				setInvalidTime(true)
 				setError(
 					'Nurse is already assigned to a shift during this time'
 				)
 			} else {
-				setInvalidateForm(false)
+				setInvalidTime(false)
 				setError('')
 			}
 		}
@@ -123,12 +130,16 @@ export default function Modal({ isOpen, onClose, title }) {
 	const isShiftError = shiftInput === ''
 	const isNurseError = nurseInput === ''
 
+	const invalidForm = invalidQual || invalidTime
+
 	const handleCloseModal = () => {
 		// reset all state values
 		setShiftInput('')
 		setNurseInput('')
 		setError('')
 		setQualificationError('')
+		setInvalidQual(false)
+		setInvalidTime(false)
 		setInvalidateForm(false)
 		setCheckValidity(false)
 		onClose()
@@ -266,11 +277,11 @@ export default function Modal({ isOpen, onClose, title }) {
 						)}
 
 						<Button
-							isDisabled={invalidateForm || isDisabled}
+							isDisabled={invalidForm || isDisabled}
 							mt={8}
 							w='100%'
 							type='submit'
-							variant={isDisabled ? 'disabled' : 'primary'}
+							variant={'primary'}
 						>
 							Save Assignment
 						</Button>

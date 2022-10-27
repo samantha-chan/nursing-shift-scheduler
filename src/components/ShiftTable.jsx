@@ -17,7 +17,7 @@ export default function ShiftTable() {
 	return (
 		<TableContainer w={'100%'}>
 			<Table variant={'striped'}>
-				<TableCaption>Schedule your shift</TableCaption>
+				<TableCaption>Schedule your shift above</TableCaption>
 				<Thead bg={'secondary.500'} color={'white'}>
 					<Tr>
 						<Td>Shift Name</Td>
